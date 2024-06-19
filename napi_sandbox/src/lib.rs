@@ -1,4 +1,5 @@
 mod threadsafe_function;
+use std::sync::mpsc::channel;
 use std::thread;
 
 use napi::threadsafe_function::ErrorStrategy;
@@ -21,18 +22,20 @@ pub fn foo(
     callback.create_threadsafe_function(0, |_ctx| Ok(Vec::<JsUndefined>::new()))?;
 
   thread::spawn(move || {
+    let (tx, rx) = channel();
+
     call_with_return_value_and_env(
       tsfn,
       42,
       ThreadsafeFunctionCallMode::Blocking,
       move |v: JsUnknown, env: Env| {
-        println!("1");
         let result = env.from_js_value::<bool, JsUnknown>(v).unwrap();
-        // tx.send(v).unwrap();
-        println!("hi {}", result);
+        tx.send(result).unwrap();
         Ok(())
       },
     );
+
+    println!("{}", rx.recv().unwrap());
   });
 
   env.get_undefined()
