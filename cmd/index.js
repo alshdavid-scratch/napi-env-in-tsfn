@@ -1,3 +1,10 @@
 import * as napi from '@workspace/napi_sandbox'
 
-console.log(napi)
+const callback = (...input) => {
+  console.log(input)
+  return true
+}
+
+napi.default.foo(callback)
+
+// setTimeout(() => {}, 5000)
