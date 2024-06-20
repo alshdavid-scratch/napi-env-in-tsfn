@@ -4,9 +4,9 @@ use napi::sys::napi_value;
 use napi::Env;
 use napi::JsUnknown;
 
-pub struct ThreadSafeResult(pub JsUnknown, pub Env);
+pub struct ThreadsafeResult(pub JsUnknown, pub Env);
 
-impl FromNapiValue for ThreadSafeResult {
+impl FromNapiValue for ThreadsafeResult {
   unsafe fn from_napi_value(
     env: napi_env,
     napi_val: napi_value,

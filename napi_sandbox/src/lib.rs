@@ -1,4 +1,4 @@
-mod threadsafe_function;
+mod threadsafe_result;
 use std::sync::mpsc::channel;
 use std::thread;
 
@@ -10,7 +10,7 @@ use napi::JsFunction;
 use napi::JsUndefined;
 use napi::JsUnknown;
 use napi_derive::napi;
-use threadsafe_function::ThreadSafeResult;
+use threadsafe_result::ThreadsafeResult;
 
 #[napi]
 pub fn foo(
@@ -21,12 +21,12 @@ pub fn foo(
     callback.create_threadsafe_function(0, |_ctx| Ok(Vec::<JsUndefined>::new()))?;
 
   thread::spawn(move || {
-    let (tx, rx) = channel();
+    let (tx, rx) = channel::<bool>();
 
     tsfn.call_with_return_value(
       42,
       ThreadsafeFunctionCallMode::Blocking,
-      move |ThreadSafeResult( value, env )| {
+      move |ThreadsafeResult(value, env)| {
         let result = env.from_js_value::<bool, JsUnknown>(value).unwrap();
         tx.send(result).unwrap();
         Ok(())
